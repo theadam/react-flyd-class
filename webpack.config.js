@@ -9,6 +9,13 @@ var reactExternal = {
   amd: 'react'
 };
 
+var flydExternal = {
+  root: 'flyd',
+  commonjs2: 'flyd',
+  commonjs: 'flyd',
+  amd: 'flyd'
+};
+
 var plugins = [
   new webpack.DefinePlugin({
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
@@ -34,11 +41,12 @@ module.exports = {
     ]
   },
   output: {
-    library: 'ReactReactiveClass',
+    library: 'ReactFlydClass',
     libraryTarget: 'umd'
   },
   externals: {
-    react: reactExternal
+    react: reactExternal,
+    flyd: flydExternal
   },
   plugins: plugins,
   resolve: {

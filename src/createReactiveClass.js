@@ -1,12 +1,13 @@
 import React from 'react';
-import {isRxObservable, pickProps} from './utils';
+import { isStream, on } from 'flyd';
+import { pickProps } from './utils';
 
 export default function createReactiveClass(tag) {
   class ReactiveClass extends React.Component {
     constructor(props) {
       super(props);
-      this.displayName = `ReactiveElement-${tag}`;
-      this.state = pickProps(props, (key, value) => !isRxObservable(value));
+      this.displayName = `FlydReactiveElement-${tag}`;
+      this.state = pickProps(props, (key, value) => !isStream(value));
       this.state.mount = true;
     }
 
@@ -23,7 +24,7 @@ export default function createReactiveClass(tag) {
     }
 
     addPropListener(name, prop$) {
-      return prop$.subscribeOnNext((value) => {
+      return on((value) => {
         // don't re-render if value is the same.
         if (value === this.state[name]) {
           return;
@@ -32,7 +33,7 @@ export default function createReactiveClass(tag) {
         const prop = {};
         prop[name] = value;
         this.setState(prop);
-      });
+      }, prop$);
     }
 
     subscribe(props) {
@@ -44,7 +45,7 @@ export default function createReactiveClass(tag) {
 
       Object.keys(props).forEach(key => {
         const value = props[key];
-        if (isRxObservable(value)) {
+        if (isStream(value)) {
           const subscription = this.addPropListener(key, value);
           this.subscriptions.push(subscription);
         }

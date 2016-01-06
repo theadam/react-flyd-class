@@ -1,40 +1,38 @@
-# React Reactive Class
-> A thin layer between RxJS and React.
-
-[![npm version](https://img.shields.io/npm/v/react-reactive-class.svg?style=flat-square)](https://www.npmjs.com/package/react-reactive-class)
+# React Flyd Class
+> A thin layer between Flyd and React.  Ported from [react-reactive-class](https://github.com/jas-chen/react-reactive-class.git).
 
 ## What?
-With React Reactive Class, you can create Reactive Components, which
-subscribe Rx.Observables and re-render themselves.
+With React Flyd Class, you can create Reactive Components, which
+subscribe to flyd streams and re-render themselves.
 
 ## Counter example
 
 You can compare this example to [Counter example of Cycle.js](https://github.com/cyclejs/cycle-examples/blob/master/counter/src/main.js) and [Counter example of Yolk](https://github.com/yolkjs/yolk#example).
 
 ```javascript
-import { Subject, Observable } from 'rx';
+import { stream, merge, scan } from 'flyd';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { dom } from 'react-reactive-class';
+import { reactive } from 'react-flyd-class';
 
-const { span: Span } = dom;
+const Span = createReactiveClass('span');
 
 function Counter () {
-  const plusClick$ = new Subject();
-  const minusClick$ = new Subject();
+  const plusClick$ = stream();
+  const minusClick$ = stream();
 
-  const action$ = Observable.merge(
+  const action$ = merge(
     plusClick$.map(() => 1),
     minusClick$.map(() => -1)
   );
 
-  const count$ = action$.scan((x, y) => x + y, 0).startWith(0);
+  const count$ = scan((x, y) => x + y, 0, action$);
 
   return (
     <div>
       <div>
-        <button id="plus" onClick={ (e) => plusClick$.onNext(e) }>+</button>
-        <button id="minus" onClick={ (e) => minusClick$.onNext(e) }>-</button>
+        <button id="plus" onClick={ (e) => plusClick$(e) }>+</button>
+        <button id="minus" onClick={ (e) => minusClick$(e) }>-</button>
       </div>
       <div>
         Count: <Span>{ count$ }</Span>
@@ -48,53 +46,14 @@ ReactDOM.render(<Counter />, document.getElementById('root'));
 
 ## Features
 
-- **Reactive DOM elements**: A set of reactive DOM elements (button, div, span, etc).
-
 - **Reactive wrapper**: A higher order component to wrap a React component to be a Reactive Component.
 
 ## Installation
 ```
-npm install --save react-reactive-class
+npm install --save react-flyd-class
 ```
 
 ## Usage
-
-### Use reactive DOM elements
-
-Example:
-
-```javascript
-import { Subject } from 'rx';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { dom } from 'react-reactive-class';
-
-const { div: Div, span: Span } = dom;
-
-window.style$ = new Subject();
-window.text$ = new Subject();
-
-class App extends React.Component {
-  render() {
-    console.log('App rendered.');
-
-    return (
-      <div>
-        <h1>Demo</h1>
-        <Div style={window.style$}>Hello</Div>
-        <Span>{window.text$}</Span>
-      </div>
-    );
-  }
-}
-
-ReactDOM.render(<App />, document.getElementById('app'));
-
-// notice that App will not re-render, nice!
-window.style$.onNext({color: 'blue'});
-window.text$.onNext('Reactive!');
-// you can open your console and play around
-```
 
 ### Use Reactive wrapper
 
@@ -107,10 +66,11 @@ reactive(ReactClass): ReactClass
 Example:
 
 ```javascript
-import { Observable } from 'rx';
+import { stream } from 'flyd';
+import every from 'flyd/module/every';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { reactive } from 'react-reactive-class';
+import { reactive } from 'react-flyd-class';
 
 class Text extends React.Component {
   componentWillMount() {
@@ -131,9 +91,8 @@ class Text extends React.Component {
 const ReactiveText = reactive(Text);
 
 
-const currentTime$ = Observable
-  .interval(1000)
-  .map(() => new Date().toLocaleString());
+const currentTime$ = every(1000)
+  .map((t) => new Date(t).toLocaleString());
 
 ReactDOM.render(
   <ReactiveText>{ currentTime$ }</ReactiveText>,
