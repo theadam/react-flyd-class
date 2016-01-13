@@ -53,7 +53,7 @@ export default function createReactiveClass(tag) {
     }
 
     unsubscribe() {
-      this.subscriptions.forEach(subscription => subscription.dispose());
+      this.subscriptions.forEach(subscription => subscription.end());
       this.subscriptions = null;
     }
 
