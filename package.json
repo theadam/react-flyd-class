@@ -21,7 +21,8 @@
     "build": "npm run build:lib && npm run build:umd",
     "lint": "eslint src",
     "prepublish": "npm run clean && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-examples": "npm run build:umd; for i in `ls examples`; do pushd examples/$i; webpack; popd; done"
   },
   "author": "Adam Nalisnick",
   "license": "MIT",
