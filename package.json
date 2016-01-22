@@ -1,6 +1,6 @@
 {
   "name": "react-flyd-class",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "create reactive react classes for flyd streams",
   "main": "lib/index.js",
   "repository": {
