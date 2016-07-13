@@ -63,12 +63,14 @@ export default function createReactiveClass(tag) {
       }
 
       const finalProps = pickProps(this.state, (key) => key !== 'mount');
+      let element;
       if (tag) {
-        return React.createElement(tag, finalProps);
+        element = React.createElement(tag, finalProps);
       } else {
-        const {children, ...props} = finalProps
-        return React.cloneElement(children, props)
+        const {children, ...props} = finalProps;
+        element = React.cloneElement(children, props);
       }
+      return element;
     }
   }
 
