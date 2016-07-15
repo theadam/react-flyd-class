@@ -1,14 +1,12 @@
 import React from 'react';
 import { isStream, on } from 'flyd';
-import { pickProps } from './utils';
 
 export default function createReactiveClass(tag) {
   class ReactiveClass extends React.Component {
     constructor(props) {
       super(props);
       this.displayName = `FlydReactiveElement-${tag}`;
-      this.state = pickProps(props, (key, value) => !isStream(value));
-      this.state.mount = true;
+      this.state = {};
     }
 
     componentWillMount() {
@@ -55,15 +53,16 @@ export default function createReactiveClass(tag) {
     unsubscribe() {
       this.subscriptions.forEach(subscription => subscription.end());
       this.subscriptions = null;
+      this.state = {};
     }
 
     render() {
-      if (!this.state.mount) {
-        return null;
+      const finalProps = {...this.props, ...this.state};
+      if (tag) {
+        return React.createElement(tag, finalProps);
       }
-
-      const finalProps = pickProps(this.state, (key) => key !== 'mount');
-      return React.createElement(tag, finalProps);
+      const {children, ...props} = finalProps;
+      return React.cloneElement(children, props);
     }
   }
 
