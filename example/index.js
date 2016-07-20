@@ -38,13 +38,20 @@ class Counter extends React.Component {
             mount={count$.map(x => x < 10)}
             style={{ color: normalState ? 'red' : 'blue' }}
           >
+            <span>This is the count </span>
             {count$}
+            <span> Cool coount, right?</span>
           </Span>
           <button
             onClick={() => this.setState({ normalState: !normalState })}
           >
             Toggle State
           </button>
+          <Span>
+            <br />
+            {count$.map(x => 10 - x)}
+            <span> away from disappearing</span>
+          </Span>
         </div>
       </div>
     );

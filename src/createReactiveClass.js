@@ -1,6 +1,8 @@
 import React from 'react';
 import { isStream, on } from 'flyd';
 
+import { hasStream, arrayStream } from './utils';
+
 export default function createReactiveClass(tag) {
   class ReactiveClass extends React.Component {
     constructor(props) {
@@ -34,12 +36,33 @@ export default function createReactiveClass(tag) {
       }, prop$);
     }
 
-    subscribe(props) {
+    childrenSubscription(children) {
+      const key = 'children';
+
+      if (isStream(children)) {
+        return this.addPropListener(key, children);
+      } else if (Array.isArray(children) && hasStream(children)) {
+        return this.addPropListener(key, arrayStream(children));
+      }
+      // Do not need to subscribe to children with no streams
+      return undefined;
+    }
+
+    subscribeChildren(children) {
+      const subscription = this.childrenSubscription(children);
+      if (subscription) {
+        this.subscriptions.push(subscription);
+      }
+    }
+
+    subscribe({ children, ...props }) {
       if (this.subscriptions) {
         this.unsubscribe();
       }
 
       this.subscriptions = [];
+
+      this.subscribeChildren(children);
 
       Object.keys(props).forEach(key => {
         const value = props[key];
