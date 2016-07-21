@@ -74,7 +74,7 @@ export default function createReactiveClass(tag) {
     }
 
     unsubscribe() {
-      this.subscriptions.forEach(subscription => subscription.end());
+      this.subscriptions.forEach(subscription => subscription.end(true));
       this.subscriptions = null;
       this.state = { mount: true };
     }
